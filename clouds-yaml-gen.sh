@@ -13,6 +13,7 @@ usage() {
   echo "  -p, --password         Password to use for authentication (OS_PASSWORD)"
   echo "  -o, --output           Output file name (Default: $DEFAULT_CLOUDS_YAML)"
   echo "  -v, --verbose          Verbose output"
+  echo "  --insecure             INSECURE: Store credentials in clouds.yaml"
   echo
   echo "Examples:"
   echo "  $0 -a https://identity.myshittycloud.com/v3 -u john -p passw0rd"
@@ -144,6 +145,10 @@ then
         export OS_AUTH_URL="$2"
         shift 2
         ;;
+      --insecure)
+        INSECURE=1
+        shift
+        ;;
       --username|-u)
         export OS_USERNAME="$2"
         shift 2
@@ -215,14 +220,24 @@ then
   fi
 
   # Set global metadata in anchors
-  CLOUDS_YAML="$(<<< "$CLOUDS_YAML" yq '
-    .x-openstack-auth.auth_url = env(OS_AUTH_URL) |
-    .x-openstack-auth.username = env(OS_USERNAME) |
-    .x-openstack-auth.password = env(OS_PASSWORD) |
-    .x-openstack-auth.user_domain_name = env(OS_USER_DOMAIN_NAME) |
-
-    .x-openstack-meta.interface = env(OS_INTERFACE) |
-    .x-openstack-meta.identity_api_version = env(OS_IDENTITY_API_VERSION)')"
+  if [[ -n "$INSECURE" ]]
+  then
+    # With credentials
+    CLOUDS_YAML="$(<<< "$CLOUDS_YAML" yq '
+      .x-openstack-auth.auth_url = env(OS_AUTH_URL) |
+      .x-openstack-auth.username = env(OS_USERNAME) |
+      .x-openstack-auth.password = env(OS_PASSWORD) |
+      .x-openstack-auth.user_domain_name = env(OS_USER_DOMAIN_NAME) |
+      .x-openstack-meta.interface = env(OS_INTERFACE) |
+      .x-openstack-meta.identity_api_version = env(OS_IDENTITY_API_VERSION)')"
+  else
+    # Without credentials
+    CLOUDS_YAML="$(<<< "$CLOUDS_YAML" yq '
+      .x-openstack-auth.auth_url = env(OS_AUTH_URL) |
+      .x-openstack-auth.user_domain_name = env(OS_USER_DOMAIN_NAME) |
+      .x-openstack-meta.interface = env(OS_INTERFACE) |
+      .x-openstack-meta.identity_api_version = env(OS_IDENTITY_API_VERSION)')"
+  fi
 
   for PROJECT_NAME in $(<<< "$PROJECTS_YAML" yq '.[].Name' | sort)
   do
