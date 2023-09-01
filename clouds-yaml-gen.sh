@@ -132,12 +132,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then
   set -eo pipefail
 
-  # Go to a temporary dir to avoid openstack-cli trying to use any clouds.yaml
-  # lying in the current directory.
-  TEMPORARY_DIR="$(mktemp -d)"
-  cd "$TEMPORARY_DIR" || exit 9
-  trap 'rm -rf "${TEMPORARY_DIR}"' EXIT
-
   while [[ -n "$*" ]]
   do
     case "$1" in
@@ -177,6 +171,13 @@ then
   done
 
   OUTPUT="${OUTPUT:-${DEFAULT_CLOUDS_YAML}}"
+  OUTPUT="$(readlink -f "$OUTPUT")"
+
+  # Go to a temporary dir to avoid openstack-cli trying to use any clouds.yaml
+  # lying in the current directory.
+  TEMPORARY_DIR="$(mktemp -d)"
+  cd "$TEMPORARY_DIR" || exit 9
+  trap 'rm -rf "${TEMPORARY_DIR}"' EXIT
 
   guess_required_vars_from_clouds_yaml
   export_default_values
