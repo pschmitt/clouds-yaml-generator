@@ -88,8 +88,8 @@ load_template() {
 cat <<EOF
 x-openstack-auth: &openstack-auth
   auth_url: https://identity.example.com/v3"
-  username: "username@example.com"
-  password: 'superSecretPassw0rd'
+  username: "$OS_USERNAME"
+  password: '$OS_PASSWORD'
   user_domain_name: "Default"
 
 x-openstack-meta: &openstack-meta
