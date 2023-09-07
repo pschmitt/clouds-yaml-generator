@@ -171,7 +171,7 @@ then
   done
 
   OUTPUT="${OUTPUT:-${DEFAULT_CLOUDS_YAML}}"
-  OUTPUT="$(readlink -f "$OUTPUT")"
+  OUTPUT="$(readlink -f -m "$OUTPUT")"
 
   # Go to a temporary dir to avoid openstack-cli trying to use any clouds.yaml
   # lying in the current directory.
