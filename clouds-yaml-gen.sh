@@ -245,6 +245,7 @@ then
     append_cloud_settings "$PROJECT_NAME"
   done
 
+  mkdir -p "$(dirname "$OUTPUT")"
   echo "$CLOUDS_YAML" > "$OUTPUT"
   echo "✔️  Done! Your clouds.yaml was saved to ${OUTPUT}"
   echo_verbose "Here's the generated content: $CLOUDS_YAML"
