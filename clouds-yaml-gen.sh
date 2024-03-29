@@ -247,6 +247,5 @@ then
 
   mkdir -p "$(dirname "$OUTPUT")"
   echo "$CLOUDS_YAML" > "$OUTPUT"
-  echo "✔️  Done! Your clouds.yaml was saved to ${OUTPUT}"
-  echo_verbose "Here's the generated content: $CLOUDS_YAML"
+  echo -e "\e[32m✅ Done! Your clouds.yaml was saved to \e[1;33m${OUTPUT}\e[0m"
 fi
